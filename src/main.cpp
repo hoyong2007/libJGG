@@ -13,6 +13,7 @@ static JavaVM *  s_vm = NULL;
 void security()
 {   
     // rooting
+    // /su/bin/su 파일이 존재하고 실행가능한지 여부를 확인함으로써 애플리케이션이 구동되고 있는 기기가 루팅되었는지 확인함.
     __android_log_print(ANDROID_LOG_INFO, "JGG", "Rooting Check");
     {
         if( access("/su/bin/su", F_OK | X_OK) == 0 )
@@ -23,6 +24,7 @@ void security()
     }
 
     // anti-debugging
+    // /proc/self/status의 TracerPid 필드를 확인해 현재 자신을 tracing 하고 있는 프로세스가 있는지 확인함으로써 디버깅 여부를 확인함.
     __android_log_print(ANDROID_LOG_INFO, "JGG", "Anti Debugging");
     {
         FILE *fp;
@@ -50,6 +52,7 @@ void security()
     }
 
     // inegrity
+    // DEX 파일 헤더의 SHA1 해쉬 값을 읽어와 원본 DEX 파일의 SHA1 해쉬 값과 비교함으로써 DEX 파일의 무결성을 검증.
     __android_log_print(ANDROID_LOG_INFO, "JGG", "Integrity Check");
     {
         FILE *maps_fp = fopen("/proc/self/maps", "r");
@@ -122,6 +125,7 @@ void security()
     }
 
     // emulator
+    // Build.PRODUCT 값을 읽어와 키워드 기반 검사를 진행함으로써 애플리케이션이 구동되고 있는 기기가 에뮬레이터인지 확인함.
     __android_log_print(ANDROID_LOG_INFO, "JGG", "Emulator Check");
     {
         JNIEnv *env = NULL;
@@ -161,10 +165,12 @@ void unpack()
 
     __android_log_print(ANDROID_LOG_INFO, "JGG", "Unpack");
 
+    // 패킹되어있는 securityCheck 함수를 언패킹할 수 있도록 rwx 권한 부여.
     mprotect((void *)(((int)func) & (~0xFFF)), 0x1000, PROT_READ | PROT_WRITE | PROT_EXEC);
 
     __android_log_print(ANDROID_LOG_INFO, "JGG", "unpack - mprotect finish");
 
+    // xor encryption으로 패킹되어있는 securityCheck 함수 영역을 언패킹.
     for(i=0;i<0x5c0;i++)
     {
         func[i] = func[i] ^ 0x80;
@@ -172,6 +178,7 @@ void unpack()
 
     __android_log_print(ANDROID_LOG_INFO, "JGG", "unpack - unpack finish");
 
+    // securityCheck 함수 호출.
     security();
     __android_log_print(ANDROID_LOG_INFO, "JGG", "unpack - FIN!");
 	return;
@@ -184,10 +191,11 @@ jint JNI_OnLoad(JavaVM *vm, void *reserved)
     char buf[30] = {0};
     unsigned char *func = (unsigned char *) unpack;
 
+    // 패킹되어있는 unpack 함수를 언패킹할 수 있도록 rwx 권한 부여.
     mprotect((void *)(((long)func) & (~0xFFF)), 0x1000, PROT_READ | PROT_WRITE | PROT_EXEC);
     __android_log_print(ANDROID_LOG_INFO, "JGG", "JNI_OnLoad - mprotect finish");
    
-
+    // permutaion encryption으로 패킹되어있는 unpack 함수 영역을 언패킹.
 	for(i=0;i<0x130/7;i++)
 	{
 		func[i*7+2]^=func[i*7+3];
@@ -223,8 +231,10 @@ jint JNI_OnLoad(JavaVM *vm, void *reserved)
 
     __android_log_print(ANDROID_LOG_INFO, "JGG", "JNI_OnLoad - unpack finish");
 
+    // unpack 함수 호출.
     unpack();
 
+    // JNI_OnLoad
     JNIEnv *env = NULL;
     jint result = -1;
 

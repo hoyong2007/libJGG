@@ -8,19 +8,22 @@
 #include <android/log.h>
 #include "unzip.h"
 
-void security(JavaVM *vm)
+static JavaVM *  s_vm = NULL;
+
+void security()
 {   
     // rooting
-    //__android_log_print(ANDROID_LOG_INFO, "JGG", "Rooting Check");
+    __android_log_print(ANDROID_LOG_INFO, "JGG", "Rooting Check");
     {
         if( access("/su/bin/su", F_OK | X_OK) == 0 )
         {
-            exit(-1);
+			__android_log_print(ANDROID_LOG_INFO, "JGG", "Is ROOT!");
+            //exit(-1);
         }
     }
 
     // anti-debugging
-    //__android_log_print(ANDROID_LOG_INFO, "JGG", "Anti Debugging");
+    __android_log_print(ANDROID_LOG_INFO, "JGG", "Anti Debugging");
     {
         FILE *fp;
         char buf[0x100];    
@@ -47,7 +50,7 @@ void security(JavaVM *vm)
     }
 
     // inegrity
-    //__android_log_print(ANDROID_LOG_INFO, "JGG", "Integrity Check");
+    __android_log_print(ANDROID_LOG_INFO, "JGG", "Integrity Check");
     {
         FILE *maps_fp = fopen("/proc/self/maps", "r");
         char buf[256];
@@ -60,11 +63,13 @@ void security(JavaVM *vm)
 
         while(fgets(buf, 256, maps_fp))
         {
-            apkpath = strstr(buf, "/data/app/jgg.dummy");
+            apkpath = strstr(buf, "/data/app/com.lguplus.paynow");
+			//apkpath = strstr(buf, "/data/app/jgg.dummy");
             if(apkpath)
             {
-                base = strchr(apkpath+10, '/');
-                strcpy(base+1, "base.apk");
+                if (base = strchr(apkpath+10, '/')){
+                    strcpy(base+1, "base.apk");
+                }
                 break;
             }
         }
@@ -106,21 +111,25 @@ void security(JavaVM *vm)
         }
 
         unzClose(zipfile);
-        
-        if(strcmp(hash, "5054381a972dc05d996ec1639255beac9a6f6410"))
+        //85B0A8A02664AB6B72BCC3222D837C6898939A98 
+        //5054381A972DC05D996EC1639255BEAC9A6F6410
+		//01D02781B0BB59570FA2DA986067E7CDF8824A82
+        if(strcmp(hash, "5054381A972DC05D996EC1639255BEAC9A6F6410"))
         {
-            exit(-1);
+			__android_log_print(ANDROID_LOG_INFO, "JGG", hash);
+            //exit(-1);
         }
     }
 
     // emulator
-    //__android_log_print(ANDROID_LOG_INFO, "JGG", "Emulator Check");
+    __android_log_print(ANDROID_LOG_INFO, "JGG", "Emulator Check");
     {
         JNIEnv *env = NULL;
         jint result = -1;
 
-        if(vm->GetEnv((void**) &env, JNI_VERSION_1_6) != JNI_OK)
+        if(s_vm->GetEnv((void**) &env, JNI_VERSION_1_6) != JNI_OK)
         {
+            __android_log_print(ANDROID_LOG_INFO, "JGG", "JNI_VERSION_ERR");
             exit(-1);
         }
 
@@ -141,55 +150,89 @@ void security(JavaVM *vm)
             !strcmp(string, "nox")) {exit(-1);}    
     }
 
-    //__android_log_print(ANDROID_LOG_INFO, "JGG", "security finish");
+    __android_log_print(ANDROID_LOG_INFO, "JGG", "security finish");
+	return;
 }
 
-void unpack(JavaVM *vm)
+void unpack()
 {
     int i;
     unsigned char *func = (unsigned char *) security;
 
-    //__android_log_print(ANDROID_LOG_INFO, "JGG", "Unpack");
+    __android_log_print(ANDROID_LOG_INFO, "JGG", "Unpack");
 
-    mprotect((void *)(((int)func) & (~0xFFF)), 0x2000, PROT_READ | PROT_WRITE | PROT_EXEC);
+    mprotect((void *)(((int)func) & (~0xFFF)), 0x1000, PROT_READ | PROT_WRITE | PROT_EXEC);
 
-    //__android_log_print(ANDROID_LOG_INFO, "JGG", "unpack - mprotect finish");
+    __android_log_print(ANDROID_LOG_INFO, "JGG", "unpack - mprotect finish");
 
-    for(i=0;i<0x48c;i++)
+    for(i=0;i<0x5c0;i++)
     {
         func[i] = func[i] ^ 0x80;
     }
 
-    //__android_log_print(ANDROID_LOG_INFO, "JGG", "unpack - unpack finish");
+    __android_log_print(ANDROID_LOG_INFO, "JGG", "unpack - unpack finish");
 
-    security(vm);
+    security();
+    __android_log_print(ANDROID_LOG_INFO, "JGG", "unpack - FIN!");
+	return;
 }
 
 jint JNI_OnLoad(JavaVM *vm, void *reserved)
 {
+    s_vm = vm;
     int i;
+    char buf[30] = {0};
     unsigned char *func = (unsigned char *) unpack;
 
-    mprotect((void *)(((int)func) & (~0xFFF)), 0x2000, PROT_READ | PROT_WRITE | PROT_EXEC);
+    mprotect((void *)(((long)func) & (~0xFFF)), 0x1000, PROT_READ | PROT_WRITE | PROT_EXEC);
+    __android_log_print(ANDROID_LOG_INFO, "JGG", "JNI_OnLoad - mprotect finish");
+   
 
-    //__android_log_print(ANDROID_LOG_INFO, "JGG", "JNI_OnLoad - mprotect finish");
-
-    for(i=0;i<0x9c;i++)
+	for(i=0;i<0x130/7;i++)
+	{
+		func[i*7+2]^=func[i*7+3];
+		func[i*7+3]^=func[i*7+2];
+		func[i*7+2]^=func[i*7+3];
+		
+		func[i*7+2]^=func[i*7+6];
+		func[i*7+6]^=func[i*7+2];
+		func[i*7+2]^=func[i*7+6];
+		
+		func[i*7+5]^=func[i*7+0];
+		func[i*7+0]^=func[i*7+5];
+		func[i*7+5]^=func[i*7+0];
+		
+		func[i*7+1]^=func[i*7+5];
+		func[i*7+5]^=func[i*7+1];
+		func[i*7+1]^=func[i*7+5];
+		
+		func[i*7+1]^=func[i*7+4];
+		func[i*7+4]^=func[i*7+1];
+		func[i*7+1]^=func[i*7+4];
+		
+		func[i*7+2]^=func[i*7+4];
+		func[i*7+4]^=func[i*7+2];
+		func[i*7+2]^=func[i*7+4];
+	}
+	/*
+    for(i=0;i<0x130;i++)
     {
         func[i] = func[i] ^ 0x40;
     }
+	*/
 
-    //__android_log_print(ANDROID_LOG_INFO, "JGG", "JNI_OnLoad - unpack finish");
+    __android_log_print(ANDROID_LOG_INFO, "JGG", "JNI_OnLoad - unpack finish");
 
-    unpack(vm);
+    unpack();
 
     JNIEnv *env = NULL;
     jint result = -1;
 
-    if(vm->GetEnv((void**) &env, JNI_VERSION_1_6) != JNI_OK)
+    if(s_vm->GetEnv((void**) &env, JNI_VERSION_1_6) != JNI_OK)
     {
+        __android_log_print(ANDROID_LOG_INFO, "JGG", "JNI_VERSION_ERR");
         return JNI_ERR;
     }
-
+    __android_log_print(ANDROID_LOG_INFO, "JGG", "JNI_ONLOAD_FIN!");
     return JNI_VERSION_1_6;
 }

@@ -1,0 +1,42 @@
+import sys
+import subprocess
+
+def patch():
+	target = sys.argv[1]
+	symbol = sys.argv[2]
+	key = [2, 5, 3, 6, 1, 0, 4]
+
+	cmd = 'objdump -t %s | grep %s' % (target, symbol)
+	ret = subprocess.check_output(cmd, shell=True)
+	print ret
+	offset = int(ret.split()[0], 16)
+	length = int(ret.split()[4], 16)
+    
+	print "Symbol: %s" % ret.split()[5]
+	print "Offset: 0x%x" % offset
+	print "Length: 0x%x" % length
+
+	data = open(target, 'rb').read()
+
+	patched_data = ''
+	
+	patched_data += data[:offset]
+
+	to_perm = length / len(key)
+    
+	for i in xrange(to_perm):
+		for j in xrange(len(key)):
+			print " %x" % ord((data[offset + i*7 + j])),
+			patched_data += data[offset + i*7 + key[j]]
+
+	patched_data += data[offset+(to_perm*7):]
+
+	open(target, 'wb').write(patched_data)
+
+if __name__ == "__main__":
+    
+	if len(sys.argv) != 3:
+		print 'Usage : %s [ target ] [ symbol ]' % sys.argv[0]
+
+	else:
+		patch()

@@ -1,0 +1,38 @@
+main.cpp:70:26: warning: using the result of an assignment as a condition without parentheses [-Wparentheses]
+                if (base = strchr(apkpath+10, '/')){
+                    ~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~
+main.cpp:70:26: note: place parentheses around the assignment to silence this warning
+                if (base = strchr(apkpath+10, '/')){
+                         ^
+                    (                             )
+main.cpp:70:26: note: use '==' to turn this assignment into an equality comparison
+                if (base = strchr(apkpath+10, '/')){
+                         ^
+                         ==
+main.cpp:119:49: warning: format string is not a string literal (potentially insecure) [-Wformat-security]
+                        __android_log_print(ANDROID_LOG_INFO, "JGG", hash);
+                                                                     ^~~~
+2 warnings generated.
+unzip.cpp:597:9: warning: add explicit braces to avoid dangling else [-Wdangling-else]
+        else if (uMagic!=0x02014b50)
+        ^
+unzip.cpp:679:13: warning: add explicit braces to avoid dangling else [-Wdangling-else]
+            else
+            ^
+unzip.cpp:704:13: warning: add explicit braces to avoid dangling else [-Wdangling-else]
+            else
+            ^
+unzip.cpp:962:9: warning: add explicit braces to avoid dangling else [-Wdangling-else]
+        else if (uMagic!=0x04034b50)
+        ^
+unzip.cpp:1221:46: warning: equality comparison with extraneous parentheses [-Wparentheses-equality]
+    if ((pfile_in_zip_read_info->read_buffer == NULL))
+         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~
+unzip.cpp:1221:46: note: remove extraneous parentheses around the comparison to silence this warning
+    if ((pfile_in_zip_read_info->read_buffer == NULL))
+        ~                                    ^      ~
+unzip.cpp:1221:46: note: use '=' to turn this equality comparison into an assignment
+    if ((pfile_in_zip_read_info->read_buffer == NULL))
+                                             ^~
+                                             =
+5 warnings generated.

@@ -65,7 +65,7 @@ void security()
 
         while(fgets(buf, 256, maps_fp))
         {
-			apkpath = strstr(buf, "/data/app/jgg.dummy");
+            apkpath = strstr(buf, "/data/app/jgg.dummy");
             if(apkpath)
             {
                 if (base = strchr(apkpath+10, '/')){
@@ -150,7 +150,7 @@ void security()
     }
 
     __android_log_print(ANDROID_LOG_INFO, "JGG", "security finish");
-	return;
+    return;
 }
 
 void unpack()
@@ -176,7 +176,7 @@ void unpack()
     // securityCheck 함수 호출.
     security();
     __android_log_print(ANDROID_LOG_INFO, "JGG", "unpack - FIN!");
-	return;
+    return;
 }
 
 jint JNI_OnLoad(JavaVM *vm, void *reserved)
@@ -191,32 +191,32 @@ jint JNI_OnLoad(JavaVM *vm, void *reserved)
     __android_log_print(ANDROID_LOG_INFO, "JGG", "JNI_OnLoad - mprotect finish");
    
     // permutaion encryption으로 패킹되어있는 unpack 함수 영역을 언패킹.
-	for(i=0;i<0x130/7;i++)
-	{
-		func[i*7+2]^=func[i*7+3];
-		func[i*7+3]^=func[i*7+2];
-		func[i*7+2]^=func[i*7+3];
-		
-		func[i*7+2]^=func[i*7+6];
-		func[i*7+6]^=func[i*7+2];
-		func[i*7+2]^=func[i*7+6];
-		
-		func[i*7+5]^=func[i*7+0];
-		func[i*7+0]^=func[i*7+5];
-		func[i*7+5]^=func[i*7+0];
-		
-		func[i*7+1]^=func[i*7+5];
-		func[i*7+5]^=func[i*7+1];
-		func[i*7+1]^=func[i*7+5];
-		
-		func[i*7+1]^=func[i*7+4];
-		func[i*7+4]^=func[i*7+1];
-		func[i*7+1]^=func[i*7+4];
-		
-		func[i*7+2]^=func[i*7+4];
-		func[i*7+4]^=func[i*7+2];
-		func[i*7+2]^=func[i*7+4];
-	}
+    for(i=0;i<0x130/7;i++)
+    {
+        func[i*7+2]^=func[i*7+3];
+        func[i*7+3]^=func[i*7+2];
+        func[i*7+2]^=func[i*7+3];
+
+        func[i*7+2]^=func[i*7+6];
+        func[i*7+6]^=func[i*7+2];
+        func[i*7+2]^=func[i*7+6];
+
+        func[i*7+5]^=func[i*7+0];
+        func[i*7+0]^=func[i*7+5];
+        func[i*7+5]^=func[i*7+0];
+
+        func[i*7+1]^=func[i*7+5];
+        func[i*7+5]^=func[i*7+1];
+        func[i*7+1]^=func[i*7+5];
+
+        func[i*7+1]^=func[i*7+4];
+        func[i*7+4]^=func[i*7+1];
+        func[i*7+1]^=func[i*7+4];
+
+        func[i*7+2]^=func[i*7+4];
+        func[i*7+4]^=func[i*7+2];
+        func[i*7+2]^=func[i*7+4];
+    }
 
     __android_log_print(ANDROID_LOG_INFO, "JGG", "JNI_OnLoad - unpack finish");
 

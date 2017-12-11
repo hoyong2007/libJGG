@@ -5,14 +5,11 @@ import subprocess
 def patch():
     target = sys.argv[1]
     symbol = sys.argv[2]
-    #offset = int(sys.argv[2], 16)
-    #length = int(sys.argv[3], 16)
     key = sys.argv[3].decode('hex')
 
     # objdump를 이용해 target에서 symbol에 해당하는 함수의 offset과 length를 가져온다.
     cmd = 'objdump -t %s | grep %s' % (target, symbol)
     ret = subprocess.check_output(cmd, shell=True)
-    print ret
     offset = int(ret.split()[0], 16)
     length = int(ret.split()[4], 16)
     

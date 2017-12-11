@@ -9,7 +9,6 @@ def patch():
 	# objdump를 이용해 target에서 symbol에 해당하는 함수의 offset과 length를 가져온다.
 	cmd = 'objdump -t %s | grep %s' % (target, symbol)
 	ret = subprocess.check_output(cmd, shell=True)
-	print ret
 	offset = int(ret.split()[0], 16)
 	length = int(ret.split()[4], 16)
     
@@ -17,7 +16,7 @@ def patch():
 	print "Offset: 0x%x" % offset
 	print "Length: 0x%x" % length
 
-    # 앞서 찾은 영역에 대해 permutation encryption을 수행한다.
+	# 앞서 찾은 영역에 대해 permutation encryption을 수행한다.
 	data = open(target, 'rb').read()
 
 	patched_data = ''
@@ -28,7 +27,6 @@ def patch():
     
 	for i in xrange(to_perm):
 		for j in xrange(len(key)):
-			print " %x" % ord((data[offset + i*7 + j])),
 			patched_data += data[offset + i*7 + key[j]]
 
 	patched_data += data[offset+(to_perm*7):]

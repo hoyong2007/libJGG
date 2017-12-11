@@ -7,10 +7,7 @@
 #include <sys/mman.h>
 #include <android/log.h>
 #include "unzip.h"
-
-static JavaVM *  s_vm = NULL;
-unsigned int s_size = 0x588;
-unsigned int u_size = 0xec;
+#include "protect.h"
 
 void security()
 {   
@@ -153,117 +150,4 @@ void security()
 
     __android_log_print(ANDROID_LOG_INFO, "JGG", "security finish");
     return;
-}
-
-void unpack()
-{
-    int i;
-    unsigned char *func = (unsigned char *) security;
-
-    __android_log_print(ANDROID_LOG_INFO, "JGG", "Unpack");
-
-    // 패킹되어있는 securityCheck 함수를 언패킹할 수 있도록 rwx 권한 부여.
-    //mprotect((void *)(((int)func) & (~0xFFF)), 0x1000, PROT_READ | PROT_WRITE | PROT_EXEC);
-
-    //__android_log_print(ANDROID_LOG_INFO, "JGG", "unpack - mprotect finish");
-
-    // xor encryption으로 패킹되어있는 securityCheck 함수 영역을 언패킹.
-    for(i=0;i<s_size;i++)
-    {
-        func[i] = func[i] ^ 0x80;
-    }
-
-    __android_log_print(ANDROID_LOG_INFO, "JGG", "unpack - unpack finish");
-
-    // securityCheck 함수 호출.
-    security();
-    __android_log_print(ANDROID_LOG_INFO, "JGG", "unpack - FIN!");
-    return;
-}
-
-jint JNI_OnLoad(JavaVM *vm, void *reserved)
-{
-    s_vm = vm;
-    int i;
-    char buf[30] = {0};
-    unsigned char *func1 = (unsigned char *) unpack;
-    unsigned char *func2 = (unsigned char *) security;
-
-    // 패킹되어있는 unpack 함수와 security 함수를 언패킹할 수 있도록 rwx 권한 부여.
-    mprotect((void *)(((long)func1) & (~0xFFF)), 0x2000, PROT_READ | PROT_WRITE | PROT_EXEC);
-    mprotect((void *)(((long)func2) & (~0xFFF)), 0x2000, PROT_READ | PROT_WRITE | PROT_EXEC);
-    __android_log_print(ANDROID_LOG_INFO, "JGG", "JNI_OnLoad - mprotect finish");
-   
-    // permutaion encryption으로 패킹되어있는 unpack 함수 영역을 언패킹.
-    for(i=0;i<u_size/7;i++)
-    {
-        func1[i*7+2]^=func1[i*7+3];
-        func1[i*7+3]^=func1[i*7+2];
-        func1[i*7+2]^=func1[i*7+3];
-
-        func1[i*7+2]^=func1[i*7+6];
-        func1[i*7+6]^=func1[i*7+2];
-        func1[i*7+2]^=func1[i*7+6];
-
-        func1[i*7+5]^=func1[i*7+0];
-        func1[i*7+0]^=func1[i*7+5];
-        func1[i*7+5]^=func1[i*7+0];
-
-        func1[i*7+1]^=func1[i*7+5];
-        func1[i*7+5]^=func1[i*7+1];
-        func1[i*7+1]^=func1[i*7+5];
-
-        func1[i*7+1]^=func1[i*7+4];
-        func1[i*7+4]^=func1[i*7+1];
-        func1[i*7+1]^=func1[i*7+4];
-
-        func1[i*7+2]^=func1[i*7+4];
-        func1[i*7+4]^=func1[i*7+2];
-        func1[i*7+2]^=func1[i*7+4];
-    }
-
-    // permutaion encryption으로 패킹되어있는 security 함수 영역을 언패킹.
-    for(i=0;i<s_size/7;i++)
-    {
-        func2[i*7+2]^=func2[i*7+3];
-        func2[i*7+3]^=func2[i*7+2];
-        func2[i*7+2]^=func2[i*7+3];
-
-        func2[i*7+2]^=func2[i*7+6];
-        func2[i*7+6]^=func2[i*7+2];
-        func2[i*7+2]^=func2[i*7+6];
-
-        func2[i*7+5]^=func2[i*7+0];
-        func2[i*7+0]^=func2[i*7+5];
-        func2[i*7+5]^=func2[i*7+0];
-
-        func2[i*7+1]^=func2[i*7+5];
-        func2[i*7+5]^=func2[i*7+1];
-        func2[i*7+1]^=func2[i*7+5];
-
-        func2[i*7+1]^=func2[i*7+4];
-        func2[i*7+4]^=func2[i*7+1];
-        func2[i*7+1]^=func2[i*7+4];
-
-        func2[i*7+2]^=func2[i*7+4];
-        func2[i*7+4]^=func2[i*7+2];
-        func2[i*7+2]^=func2[i*7+4];
-    }
-
-    __android_log_print(ANDROID_LOG_INFO, "JGG", "JNI_OnLoad - unpack finish");
-
-    // unpack 함수 호출.
-    unpack();
-
-    // JNI_OnLoad
-    JNIEnv *env = NULL;
-    jint result = -1;
-
-    if(s_vm->GetEnv((void**) &env, JNI_VERSION_1_6) != JNI_OK)
-    {
-        __android_log_print(ANDROID_LOG_INFO, "JGG", "JNI_VERSION_ERR");
-        return JNI_ERR;
-    }
-    __android_log_print(ANDROID_LOG_INFO, "JGG", "JNI_ONLOAD_FIN!");
-    return JNI_VERSION_1_6;
 }

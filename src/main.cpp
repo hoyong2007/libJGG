@@ -18,7 +18,6 @@ void security()
     {
         if( access("/su/bin/su", F_OK | X_OK) == 0 )
         {
-            __android_log_print(ANDROID_LOG_INFO, "JGG", "Is ROOT!");
             exit(-1);
         }
     }

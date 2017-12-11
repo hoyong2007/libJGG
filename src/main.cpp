@@ -18,8 +18,8 @@ void security()
     {
         if( access("/su/bin/su", F_OK | X_OK) == 0 )
         {
-			__android_log_print(ANDROID_LOG_INFO, "JGG", "Is ROOT!");
-            //exit(-1);
+            __android_log_print(ANDROID_LOG_INFO, "JGG", "Is ROOT!");
+            exit(-1);
         }
     }
 
@@ -66,8 +66,7 @@ void security()
 
         while(fgets(buf, 256, maps_fp))
         {
-            apkpath = strstr(buf, "/data/app/com.lguplus.paynow");
-			//apkpath = strstr(buf, "/data/app/jgg.dummy");
+			apkpath = strstr(buf, "/data/app/jgg.dummy");
             if(apkpath)
             {
                 if (base = strchr(apkpath+10, '/')){
@@ -114,13 +113,10 @@ void security()
         }
 
         unzClose(zipfile);
-        //85B0A8A02664AB6B72BCC3222D837C6898939A98 
-        //5054381A972DC05D996EC1639255BEAC9A6F6410
-		//01D02781B0BB59570FA2DA986067E7CDF8824A82
-        if(strcmp(hash, "5054381A972DC05D996EC1639255BEAC9A6F6410"))
+
+        if(strcmp(hash, strlwr("5054381A972DC05D996EC1639255BEAC9A6F6410")))
         {
-			__android_log_print(ANDROID_LOG_INFO, "JGG", hash);
-            //exit(-1);
+            exit(-1);
         }
     }
 
@@ -222,12 +218,6 @@ jint JNI_OnLoad(JavaVM *vm, void *reserved)
 		func[i*7+4]^=func[i*7+2];
 		func[i*7+2]^=func[i*7+4];
 	}
-	/*
-    for(i=0;i<0x130;i++)
-    {
-        func[i] = func[i] ^ 0x40;
-    }
-	*/
 
     __android_log_print(ANDROID_LOG_INFO, "JGG", "JNI_OnLoad - unpack finish");
 

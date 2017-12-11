@@ -3,6 +3,7 @@
 
 mv libJGG.so ../script/
 python ../script/xor_patcher.py ../script/libJGG.so security 80
+python ../script/perm_patcher.py ../script/libJGG.so security
 python ../script/perm_patcher.py ../script/libJGG.so unpack2 
 python ../script/perm_patcher.py ../script/libJGG.so unpack2_f 
 

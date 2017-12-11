@@ -15,5 +15,6 @@
 	=> permutaion을 수행해주는 스크립트  
 	=> Usage : python perm_patcher.py [target] [symbol]  
 	-> $ python perm_patcher.py libJGG.so unpack  
+	-> $ python perm_patcher.py libJGG.so security  
   
 6. 루트 디렉토리에 떨어진 dummy.apk를 signing만 해주면 끝~~~!!  

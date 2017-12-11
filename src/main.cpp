@@ -9,6 +9,8 @@
 #include "unzip.h"
 
 static JavaVM *  s_vm = NULL;
+unsigned int s_size = 0x588;
+unsigned int u_size = 0xec;
 
 void security()
 {   
@@ -113,7 +115,7 @@ void security()
 
         unzClose(zipfile);
 
-        if(strcmp(hash, strlwr("5054381A972DC05D996EC1639255BEAC9A6F6410")))
+        if(strcmp(hash, "5054381a972dc05d996ec1639255beac9a6f6410"))
         {
             exit(-1);
         }
@@ -161,12 +163,12 @@ void unpack()
     __android_log_print(ANDROID_LOG_INFO, "JGG", "Unpack");
 
     // 패킹되어있는 securityCheck 함수를 언패킹할 수 있도록 rwx 권한 부여.
-    mprotect((void *)(((int)func) & (~0xFFF)), 0x1000, PROT_READ | PROT_WRITE | PROT_EXEC);
+    //mprotect((void *)(((int)func) & (~0xFFF)), 0x1000, PROT_READ | PROT_WRITE | PROT_EXEC);
 
-    __android_log_print(ANDROID_LOG_INFO, "JGG", "unpack - mprotect finish");
+    //__android_log_print(ANDROID_LOG_INFO, "JGG", "unpack - mprotect finish");
 
     // xor encryption으로 패킹되어있는 securityCheck 함수 영역을 언패킹.
-    for(i=0;i<0x5c0;i++)
+    for(i=0;i<s_size;i++)
     {
         func[i] = func[i] ^ 0x80;
     }
@@ -184,38 +186,68 @@ jint JNI_OnLoad(JavaVM *vm, void *reserved)
     s_vm = vm;
     int i;
     char buf[30] = {0};
-    unsigned char *func = (unsigned char *) unpack;
+    unsigned char *func1 = (unsigned char *) unpack;
+    unsigned char *func2 = (unsigned char *) security;
 
-    // 패킹되어있는 unpack 함수를 언패킹할 수 있도록 rwx 권한 부여.
-    mprotect((void *)(((long)func) & (~0xFFF)), 0x1000, PROT_READ | PROT_WRITE | PROT_EXEC);
+    // 패킹되어있는 unpack 함수와 security 함수를 언패킹할 수 있도록 rwx 권한 부여.
+    mprotect((void *)(((long)func1) & (~0xFFF)), 0x2000, PROT_READ | PROT_WRITE | PROT_EXEC);
+    mprotect((void *)(((long)func2) & (~0xFFF)), 0x2000, PROT_READ | PROT_WRITE | PROT_EXEC);
     __android_log_print(ANDROID_LOG_INFO, "JGG", "JNI_OnLoad - mprotect finish");
    
     // permutaion encryption으로 패킹되어있는 unpack 함수 영역을 언패킹.
-    for(i=0;i<0x130/7;i++)
+    for(i=0;i<u_size/7;i++)
     {
-        func[i*7+2]^=func[i*7+3];
-        func[i*7+3]^=func[i*7+2];
-        func[i*7+2]^=func[i*7+3];
+        func1[i*7+2]^=func1[i*7+3];
+        func1[i*7+3]^=func1[i*7+2];
+        func1[i*7+2]^=func1[i*7+3];
 
-        func[i*7+2]^=func[i*7+6];
-        func[i*7+6]^=func[i*7+2];
-        func[i*7+2]^=func[i*7+6];
+        func1[i*7+2]^=func1[i*7+6];
+        func1[i*7+6]^=func1[i*7+2];
+        func1[i*7+2]^=func1[i*7+6];
 
-        func[i*7+5]^=func[i*7+0];
-        func[i*7+0]^=func[i*7+5];
-        func[i*7+5]^=func[i*7+0];
+        func1[i*7+5]^=func1[i*7+0];
+        func1[i*7+0]^=func1[i*7+5];
+        func1[i*7+5]^=func1[i*7+0];
 
-        func[i*7+1]^=func[i*7+5];
-        func[i*7+5]^=func[i*7+1];
-        func[i*7+1]^=func[i*7+5];
+        func1[i*7+1]^=func1[i*7+5];
+        func1[i*7+5]^=func1[i*7+1];
+        func1[i*7+1]^=func1[i*7+5];
 
-        func[i*7+1]^=func[i*7+4];
-        func[i*7+4]^=func[i*7+1];
-        func[i*7+1]^=func[i*7+4];
+        func1[i*7+1]^=func1[i*7+4];
+        func1[i*7+4]^=func1[i*7+1];
+        func1[i*7+1]^=func1[i*7+4];
 
-        func[i*7+2]^=func[i*7+4];
-        func[i*7+4]^=func[i*7+2];
-        func[i*7+2]^=func[i*7+4];
+        func1[i*7+2]^=func1[i*7+4];
+        func1[i*7+4]^=func1[i*7+2];
+        func1[i*7+2]^=func1[i*7+4];
+    }
+
+    // permutaion encryption으로 패킹되어있는 security 함수 영역을 언패킹.
+    for(i=0;i<s_size/7;i++)
+    {
+        func2[i*7+2]^=func2[i*7+3];
+        func2[i*7+3]^=func2[i*7+2];
+        func2[i*7+2]^=func2[i*7+3];
+
+        func2[i*7+2]^=func2[i*7+6];
+        func2[i*7+6]^=func2[i*7+2];
+        func2[i*7+2]^=func2[i*7+6];
+
+        func2[i*7+5]^=func2[i*7+0];
+        func2[i*7+0]^=func2[i*7+5];
+        func2[i*7+5]^=func2[i*7+0];
+
+        func2[i*7+1]^=func2[i*7+5];
+        func2[i*7+5]^=func2[i*7+1];
+        func2[i*7+1]^=func2[i*7+5];
+
+        func2[i*7+1]^=func2[i*7+4];
+        func2[i*7+4]^=func2[i*7+1];
+        func2[i*7+1]^=func2[i*7+4];
+
+        func2[i*7+2]^=func2[i*7+4];
+        func2[i*7+4]^=func2[i*7+2];
+        func2[i*7+2]^=func2[i*7+4];
     }
 
     __android_log_print(ANDROID_LOG_INFO, "JGG", "JNI_OnLoad - unpack finish");

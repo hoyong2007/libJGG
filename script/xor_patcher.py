@@ -5,6 +5,7 @@ import subprocess
 
 def patch(symbol, offset, length, key):
 
+    print "####### xor_patch ########"
     print "Symbol: %s" % symbol
     print "Offset: 0x%x" % offset
     print "Length: 0x%x" % length

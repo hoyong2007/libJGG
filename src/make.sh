@@ -1,5 +1,5 @@
 #! /bin/bash
-~/arm32/bin/clang -shared -lm libJGG.cpp unpacker.cpp lib/security.cpp lib/unzip.cpp lib/ioapi.cpp -lz -llog -o libJGG.so
+~/arm32/bin/clang -shared -lm libJGG.cpp unpacker.cpp lib/security.cpp lib/unzip.cpp lib/ioapi.cpp -lz -llog -o libJGG.so 2>/dev/null
 
 mv libJGG.so ../script/
 python ../script/xor_patcher.py ../script/libJGG.so security 80

@@ -6,6 +6,7 @@ import subprocess
 def patch(symbol, offset, length):
 	key = [2, 5, 3, 6, 1, 0, 4]
 
+	print "####### perm_patch #######"
 	print "Symbol: %s" % symbol
 	print "Offset: 0x%x" % offset
 	print "Length: 0x%x" % length

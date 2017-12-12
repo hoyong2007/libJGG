@@ -13,8 +13,6 @@ JavaVM *  s_vm = NULL;
 
 void unpack2()
 {
-    int i;
-
     __android_log_print(ANDROID_LOG_INFO, "JGG", "Unpack");
 
     // xor encryption으로 패킹되어있는 함수 언패킹.
@@ -46,7 +44,6 @@ jint JNI_OnLoad(JavaVM *vm, void *reserved)
 
     // JNI_OnLoad
     JNIEnv *env = NULL;
-    jint result = -1;
 
     if(s_vm->GetEnv((void**) &env, JNI_VERSION_1_6) != JNI_OK)
     {

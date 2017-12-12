@@ -1,13 +1,5 @@
-#include <stdio.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <string.h>
-#include <fcntl.h>
-#include <jni.h>
-#include <sys/mman.h>
-#include <android/log.h>
-#include "lib/protect.h"
 #include "libJGG.h"
+#include "lib/protect.h"
 
 JavaVM *  s_vm = NULL;
 

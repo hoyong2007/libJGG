@@ -7,10 +7,10 @@
 #include <sys/mman.h>
 #include <android/log.h>
 
-#ifndef UNPACK
-const unsigned int unpack2_size = 0xb0;
+#ifndef JGG
+#define JGG
+const unsigned int unpack2_size = 0xa0;
 const unsigned int unpack2_f_size = 0x60;
-#define UNPACK
 #endif
 
 void unpack2_f(unsigned char *func, unsigned int size);

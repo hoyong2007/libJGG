@@ -1,5 +1,7 @@
-#ifndef JGG
-#define JGG
+#include "../libJGG.h"
+
+#ifndef PROT
+#define PROT
 const unsigned int security_size = 0x588;
 #endif
 

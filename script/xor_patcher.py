@@ -10,10 +10,11 @@ def patch(symbol, offset, length, key):
     print "Offset: 0x%x" % offset
     print "Length: 0x%x" % length
     # 앞서 찾은 영역에 대해 xor encryption을 수행한다.
+
     data = open(target, 'rb').read()
-    
-    patched_data = ''
-    
+
+    patched_data = ''    
+
     patched_data += data[:offset]
 
     for i in xrange(length):
@@ -33,7 +34,7 @@ if __name__ == "__main__":
 		symbol = sys.argv[2]
 		key = sys.argv[3].decode('hex')
 	
-		# objdump를 이용해 target에서 symbol에 해당하는 함수의 offset과 length를 가져온다.
+		# objdump를 이용해 target에서 함수의 offset과 length를 가져온다.
 		cmd = 'objdump -t %s | grep %s' % (target, symbol)
 		ret = subprocess.check_output(cmd, shell=True).split('\n')
 		for r in ret:

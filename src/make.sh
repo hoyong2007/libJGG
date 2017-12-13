@@ -1,13 +1,25 @@
 #! /bin/bash
-~/arm32/bin/clang -shared -lm libJGG.cpp unpacker.cpp lib/security.cpp lib/unzip.cpp lib/ioapi.cpp -lz -llog -o libJGG.so 2>/dev/null
 
-mv libJGG.so ../script/
-python ../script/xor_patcher.py ../script/libJGG.so security 80
-python ../script/perm_patcher.py ../script/libJGG.so security
-python ../script/perm_patcher.py ../script/libJGG.so unpack2 
-python ../script/perm_patcher.py ../script/libJGG.so unpack2_f 
+DEFAULT="libJGG.cpp unpacker.cpp lib/security.cpp lib/unzip.cpp lib/ioapi.cpp"
+EXTRA=""
+GCC=$HOME"/arm32/bin/clang "
+OUT="libJGG.so"
+OPTION="-lz -llog"
+
+$GCC -o $OUT -shared $DEFAULT $EXTRA $OPTION 2>/dev/null
+
+PACKER1="../script/perm_patcher.py"
+PACKER2="../script/xor_patcher.py"
+
+python $PACKER2 $OUT security 80
+python $PACKER1 $OUT security
+
+python $PACKER1 $OUT unpack2 
+python $PACKER1 $OUT unpack2_f 
 
 
-mv ../script/libJGG.so ../dummy/lib/armeabi-v7a/
+mv $OUT ../dummy/lib/armeabi-v7a/
 apktool b ../dummy
 mv ../dummy/dist/dummy.apk ../
+
+

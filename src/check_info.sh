@@ -1,7 +1,18 @@
 #! /bin/bash
 
-~/arm32/bin/clang -shared -lm libJGG.cpp unpacker.cpp lib/security.cpp lib/unzip.cpp lib/ioapi.cpp -lz -llog -o libJGG.so 2>./err
-python ../script/check_info.py libJGG.so unpack2
-python ../script/check_info.py libJGG.so unpack2_f
-python ../script/check_info.py libJGG.so security
+DEFAULT="libJGG.cpp unpacker.cpp lib/security.cpp lib/unzip.cpp lib/ioapi.cpp"
+EXTRA=""
+GCC=$HOME"/arm32/bin/clang "
+OUT="libJGG.so"
+OPTION="-lz -llog"
+
+$GCC -o $OUT -shared $DEFAULT $EXTRA $OPTION 2>err
+
+SCRIPT="../script/check_info.py"
+python $SCRIPT $OUT unpack2
+python $SCRIPT $OUT unpack2_f
+python $SCRIPT $OUT security
+
 rm libJGG.so
+
+

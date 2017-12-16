@@ -20,3 +20,11 @@ libJGG 매뉴얼
 	- src/check_info.sh를 사용해 얻은 추가된 함수의 크기를 이용해 src/lib/protect.h에 선언된 함수 사이즈 상수의 값과 src/libJGG.h에 선언된 unpack2_size 상수값을 수정한다.  
 	- src/make.sh를 사용해 라이브러리를 빌드한다.  
 	- JNI_OnLoad시 함수를 호출하고 싶다면 추가된 함수를 src/libJGG.cpp의 unpack2()함수 마지막 부분에 함수 호출을 하면 된다.  
+  
+  
+3. packing / unpacking 알고리즘 customize  
+-------------------------------------------  
+	- script/ 에 커스텀 패킹 스크립트를 넣는다.  
+	- src/unpacker.cpp의 unpack_f() 함수와 unpack2_f()함수 중 바꾸고 싶은 언패킹 알고리즘을 커스텀 언패킹 알고리즘으로 수정한다.   
+	- unpack2_f() 함수의 언패킹 알고리즘이 바뀌었을 경우 src/check_info.sh를 통해 src/libJGG.h 헤더파일에 있는 unpack2_f_size 상수의 값을 수정한다.  
+	- src/make.sh의 패킹부분을 커스텀 패킹 스크립트를 사용하도록 수정한다.  
